@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Order</title>
+    <style>
+
+        body{
+            margin-top: 50px;
+        }
+        table {
+            width: 600px;
+            display: block;
+            margin: 0 auto;
+            font-size: 14px;
+        }
+        .details {
+            background-color: #e6f4ff;
+        }
+
+        th {
+            text-align: left;
+            width: 300px;
+            font-weight: bold;
+            padding: 5px;
+            background: #b3deff;
+            border: none;
+            border-bottom: 2px solid #ced6f0;
+        }
+        td {
+            width: 300px;
+            padding: 5px;
+            border: none;
+            border-bottom: 2px solid #ced6f0;
+        }
+
+    </style>
+</head>
+<body>
+<table class="table">
+
+    <tr>
+        <td>Order id</td>
+        <td>{{ .OrderUid}}
+    </tr>
+    <tr>
+        <td>Track Number</td>
+        <td>{{ .TrackNumber}}
+    </tr>
+    <tr>
+        <td>Entry</td>
+        <td>{{ .Entry}}
+    </tr>
+
+    <tr><th colspan="2">Delivery</th></tr>
+    <tr class = "details">
+        <td>name</td>
+        <td>{{ .Delivery.Name }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Phone</td>
+        <td>{{ .Delivery.Phone }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Zip</td>
+        <td>{{ .Delivery.Zip }}</td>
+    </tr>
+    <tr class = "details">
+        <td>City</td>
+        <td>{{ .Delivery.City }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Address</td>
+        <td>{{ .Delivery.Address }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Region</td>
+        <td>{{ .Delivery.Region }}</td>
+    </tr>
+    <tr class = "details">
+        <td>E-mail</td>
+        <td>{{ .Delivery.Email }}</td>
+    </tr>
+    <tr><th colspan="2">Payments</th></tr>
+    <tr class = "details">
+        <td>Transaction</td>
+        <td>{{ .Payment.Transaction }}</td>
+    </tr>
+    <tr class = "details">
+        <td>RequestId</td>
+        <td>{{ .Payment.RequestId }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Currency</td>
+        <td>{{ .Payment.Currency }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Provider</td>
+        <td>{{ .Payment.Provider }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Amount</td>
+        <td>{{ .Payment.Amount }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Payment Dt</td>
+        <td>{{ .Payment.PaymentDt }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Bank</td>
+        <td>{{ .Payment.Bank }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Delivery Cost</td>
+        <td>{{ .Payment.DeliveryCost }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Goods Total</td>
+        <td>{{ .Payment.GoodsTotal }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Custom Fee</td>
+        <td>{{ .Payment.CustomFee }}</td>
+    </tr>
+    {{range .Items }}
+    <tr><th colspan="2">Item</th></tr>
+    <tr class = "details">
+        <td>Chrt Id</td>
+        <td>{{ .ChrtId }}</td>
+    </tr>
+    <tr class = "details">
+        <td>TrackNumber</td>
+        <td>{{ .TrackNumber }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Price</td>
+        <td>{{ .Price }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Rid</td>
+        <td>{{ .Rid }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Name</td>
+        <td>{{ .Name }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Sale</td>
+        <td>{{ .Sale }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Size</td>
+        <td>{{ .Size }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Total Price</td>
+        <td>{{ .TotalPrice }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Nm Id</td>
+        <td>{{ .NmId }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Brand</td>
+        <td>{{ .Brand }}</td>
+    </tr>
+    <tr class = "details">
+        <td>Status</td>
+        <td>{{ .Status }}</td>
+    </tr>
+    {{end}}
+
+    <tr>
+        <td>Locale</td>
+        <td>{{ .Locale }}</td>
+    </tr>
+    <tr>
+        <td>Internal Signature</td>
+        <td>{{ .InternalSignature }}</td>
+    </tr>
+    <tr>
+        <td>Customer Id</td>
+        <td>{{ .CustomerId }}</td>
+    </tr>
+    <tr>
+        <td>Delivery Service</td>
+        <td>{{ .DeliveryService }}</td>
+    </tr>
+    <tr>
+        <td>Shard key</td>
+        <td>{{ .Shardkey  }}</td>
+    </tr>
+    <tr>
+        <td>Sm Id</td>
+        <td>{{ .SmId  }}</td>
+    </tr>
+    <tr>
+        <td>Date Created</td>
+        <td>{{ .DateCreated }}</td>
+    </tr>
+    <tr>
+        <td>Oof Shard</td>
+        <td>{{ .OofShard }}</td>
+    </tr>
+
+</table>
+
+</body>
+</html>
