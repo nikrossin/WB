@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"task/pkg/memory"
 )
 
-func HttpServerStart(inmemory memory.Memory) {
+func HttpHandlersStart(inmemory memory.Memory) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "static/index.html")
 	})
@@ -54,7 +53,5 @@ func HttpServerStart(inmemory memory.Memory) {
 			}
 		}
 	})
-
-	log.Fatal(http.ListenAndServe(":8080", nil))
 
 }
