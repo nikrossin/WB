@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"github.com/nats-io/stan.go"
 	"io/ioutil"
@@ -43,6 +44,7 @@ func TestApp(t *testing.T) {
 	var msgData, respData model.Order
 
 	defer file.Close()
+	//используем готовую json модель для формирования сообщения
 	content, err := ioutil.ReadAll(file)
 
 	err = json.Unmarshal(content, &msgData)
@@ -50,8 +52,8 @@ func TestApp(t *testing.T) {
 		t.Errorf("error model struct")
 	}
 	rand.Seed(time.Now().UnixNano())
-
 	sc, _ := stan.Connect(clusterIDTest, clientIDTest)
+	//на основе готовой модели генерируем 5 тестовых сообщений, изменяя 3 поля в модели
 	for i := 0; i < 5; i++ {
 		msgData.OrderUid = RandString(15, true)
 		msgData.Payment.Transaction = RandString(15, true)
@@ -61,15 +63,24 @@ func TestApp(t *testing.T) {
 			t.Errorf("error marshal msg")
 		}
 		sc.Publish("foo", msg)
+		//формируем таблицу тестов
 		testTable = append(testTable, testItem{msgData.OrderUid, msgData.Payment.Transaction, msgData.Delivery.Name})
 	}
-	//wait 2sec while service get msg
+	//ждем некотрое время, пока сервис не получит сообщения
 	time.Sleep(2 * time.Second)
+
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
 	for _, val := range testTable {
 		resp, _ := http.Get("http://localhost:8080/json?id=" + val.Order)
 		if resp.StatusCode != 200 {
 			t.Errorf(" id not found")
 		}
+		//обновляем поля сообшения, отправленного в nats-streaming для каждого теств
 		msgData.OrderUid, msgData.Payment.Transaction, msgData.Delivery.Name = val.Order, val.Payment, val.Delivery
 
 		body, _ := ioutil.ReadAll(resp.Body)
@@ -78,10 +89,16 @@ func TestApp(t *testing.T) {
 		if err != nil {
 			t.Errorf("error in body response struct")
 		}
+		//проверка добавил ли сервис данные от nats
 		if !reflect.DeepEqual(respData, msgData) {
 			t.Errorf("Add data from NATs not correct in service")
 		}
-	}
+		rowsOrders, _ := db.Query("select * from orders where order_uid = $1", respData.OrderUid)
+		if !rowsOrders.Next() {
+			t.Errorf("msg not add in DB")
+		}
+		rowsOrders.Close()
 
+	}
 	sc.Close()
 }
