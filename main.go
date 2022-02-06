@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	_ "github.com/lib/pq"
 	"log"
 	"net/http"
@@ -14,20 +13,19 @@ func main() {
 
 	err := GetDataFromDB(inmemory)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 
 	sc, err := ConnectNatsStream()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer sc.Close()
 
 	err = SubscribeMsg(sc, inmemory)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-
 	HttpHandlersStart(inmemory)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 
