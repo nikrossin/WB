@@ -1,23 +1,16 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
+	"task/pkg/cashe"
 )
 
 func main() {
-	var data jsonFile
-	cash := Cashe(make(map[string]jsonFile))
-	connStr := "user=myuser password=qwerty dbname=taskdb sslmode=disable"
 
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
+	inmemory := cashe.New()
 
-	err = GetDataFromDB(db, cash)
+	err := GetDataFromDB(inmemory)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -28,10 +21,10 @@ func main() {
 	}
 	defer sc.Close()
 
-	err = SubscribeMsg(sc, data, db, cash)
+	err = SubscribeMsg(sc, inmemory)
 	if err != nil {
 		panic(err)
 	}
-	HttpServerStart(cash)
+	HttpServerStart(inmemory)
 
 }

@@ -6,9 +6,10 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"task/pkg/memory"
 )
 
-func HttpServerStart(cash Cashe) {
+func HttpServerStart(inmemory memory.Memory) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "static/index.html")
 	})
@@ -19,7 +20,7 @@ func HttpServerStart(cash Cashe) {
 		if !ok || len(id[0]) < 1 {
 			http.Error(w, "empty ID or not correct request", http.StatusBadRequest)
 		} else {
-			if val, ok := cash[id[0]]; ok {
+			if val, ok := inmemory.Get(id[0]); ok {
 				jsonData, err := json.Marshal(val)
 				if err != nil {
 					http.Error(w, "server error:"+err.Error(), http.StatusInternalServerError)
@@ -37,7 +38,7 @@ func HttpServerStart(cash Cashe) {
 		if !ok || len(id[0]) < 1 {
 			http.Error(w, "empty ID or not correct request", http.StatusBadRequest)
 		} else {
-			if val, ok := cash[id[0]]; ok {
+			if val, ok := inmemory.Get(id[0]); ok {
 				tmpl, err := template.ParseFiles("static/data.html")
 				if err != nil {
 					http.Error(w, "server error:"+err.Error(), http.StatusInternalServerError)

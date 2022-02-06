@@ -1,10 +1,11 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/nats-io/stan.go"
+	"task/pkg/memory"
+	"task/pkg/model"
 )
 
 const (
@@ -23,22 +24,21 @@ func ConnectNatsStream() (stan.Conn, error) {
 	if err != nil {
 		return sc, err
 	}
-
 	return sc, nil
 }
-func SubscribeMsg(sc stan.Conn, data jsonFile, db *sql.DB, cash Cashe) error {
-
+func SubscribeMsg(sc stan.Conn, inmemory memory.Memory) error {
+	var data model.Order
 	handler := func(msg *stan.Msg) {
 		err := json.Unmarshal(msg.Data, &data)
 		if err != nil {
 			err = fmt.Errorf("incorrect messange from NATS %s", err)
 		}
 
-		err = SendDB(data, db)
+		err = SendDB(data)
 		if err != nil {
 			panic(err)
 		} else {
-			cash[data.OrderUid] = data
+			inmemory.Set(data.OrderUid, data)
 		}
 
 	}
