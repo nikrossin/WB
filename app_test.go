@@ -38,48 +38,50 @@ type testItem struct {
 }
 
 func TestApp(t *testing.T) {
-	file, err := os.Open("static/model.json")
-	if err != nil {
-		panic(err)
-	}
+	file, _ := os.Open("static/model.json")
+	var testTable []testItem
+	var msgData, respData model.Order
+
 	defer file.Close()
 	content, err := ioutil.ReadAll(file)
 
-	var data model.Order
-	var respData model.Order
-	err = json.Unmarshal(content, &data)
+	err = json.Unmarshal(content, &msgData)
 	if err != nil {
-		panic(err)
+		t.Errorf("error model struct")
 	}
 	rand.Seed(time.Now().UnixNano())
 
-	sc, _ := stan.Connect(clusterIDTest, clientIDTest) // Simple Synchronous Publisher
-	var testTable []testItem
+	sc, _ := stan.Connect(clusterIDTest, clientIDTest)
 	for i := 0; i < 5; i++ {
-		data.OrderUid = RandString(15, true)
-		data.Payment.Transaction = RandString(15, true)
-		data.Delivery.Name = RandString(10, false)
-		msg, err := json.Marshal(data)
+		msgData.OrderUid = RandString(15, true)
+		msgData.Payment.Transaction = RandString(15, true)
+		msgData.Delivery.Name = RandString(10, false)
+		msg, err := json.Marshal(msgData)
 		if err != nil {
-			panic(err)
+			t.Errorf("error marshal msg")
 		}
 		sc.Publish("foo", msg)
-		testTable = append(testTable, testItem{data.OrderUid, data.Payment.Transaction, data.Delivery.Name})
+		testTable = append(testTable, testItem{msgData.OrderUid, msgData.Payment.Transaction, msgData.Delivery.Name})
 	}
+	//wait 2sec while service get msg
 	time.Sleep(2 * time.Second)
-
 	for _, val := range testTable {
-
 		resp, _ := http.Get("http://localhost:8080/json?id=" + val.Order)
 		if resp.StatusCode != 200 {
 			t.Errorf(" id not found")
 		}
-		data.OrderUid, data.Payment.Transaction, data.Delivery.Name = val.Order, val.Payment, val.Delivery
+		msgData.OrderUid, msgData.Payment.Transaction, msgData.Delivery.Name = val.Order, val.Payment, val.Delivery
+
 		body, _ := ioutil.ReadAll(resp.Body)
-		json.Unmarshal(body, &respData)
-		if !reflect.DeepEqual(respData, data) {
+		resp.Body.Close()
+		err = json.Unmarshal(body, &respData)
+		if err != nil {
+			t.Errorf("error in body response struct")
+		}
+		if !reflect.DeepEqual(respData, msgData) {
 			t.Errorf("Add data from NATs not correct in service")
 		}
 	}
+
 	sc.Close()
 }
