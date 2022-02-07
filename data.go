@@ -15,7 +15,7 @@ func GetDataFromDB(inmemory memory.Memory) error {
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("error connection DB: %s", err)
 	}
 	defer db.Close()
 	rowsOrders, err := db.Query("select * From orders")
